@@ -61,12 +61,10 @@ class LoginController extends Controller
             //return Redirect::to('login');
         }
         
-    }
-
-    $authUser = $this->findOrCreateUser($user);
-    Auth::login($authUser, false);
+        $authUser = $this->findOrCreateUser($user);
+        Auth::login($authUser, true);
      
-      return Redirect::route('dashboard');
+        return redirect($this->redirectTo);
     }
     /**
      * Return user if exists; create and return if doesn't
@@ -76,18 +74,15 @@ class LoginController extends Controller
      */
     private function findOrCreateUser($fbUser)
     {
-        if ($authUser = User::find($fbUser->id)->first()) {
-            $authUser->access_token = $fbUser->token;
-            $authUser->refresh_token = $fbUser->refreshToken;
-            $authUser->save();
+       $authUser = User::where('provider_id', $user->id)->first();
+        if ($authUser) {
             return $authUser;
         }
         return User::create([
-            'name' => $fbUser->name,
-            'email' =>$fbUser->email,
-            'id' => $fbUser->id,
-            'access_token'  => $fbUser->token,
-            'refresh_token' => $fbUser->refreshToken
+            'name'     => $user->name,
+            'email'    => $user->email,
+            'provider' => $provider,
+            'provider_id' => $user->id
         ]);
     }
 }
